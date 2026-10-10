@@ -1,0 +1,15 @@
+{
+  "name": "ResolveAI - AI Complaint Resolution Platform",
+  "short_name": "ResolveAI",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#174C3C",
+  "background_color": "#F3F6F4"
+}

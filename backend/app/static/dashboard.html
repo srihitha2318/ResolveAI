@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ResolveAI Supervisor Command & Clarification Center for human-in-the-loop approvals, SLA monitoring, and customer clarification loops.">
+  <title>ResolveAI — Supervisor Command &amp; Clarification Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080D1A;
+      --bg-surface: #0E1626;
+      --bg-card: #131E35;
+      --bg-card-hover: #192744;
+      --bg-card-active: #1D2E52;
+      --border: rgba(37, 99, 235, 0.22);
+      --border-highlight: rgba(0, 210, 255, 0.4);
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-subtle: #64748B;
+      --cyan: #00D2FF;
+      --cyan-glow: rgba(0, 210, 255, 0.25);
+      --royal-blue: #2563EB;
+      --purple: #8B5CF6;
+      --purple-bg: rgba(139, 92, 246, 0.15);
+      --success: #10B981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --warning: #F59E0B;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --danger: #EF4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(0, 210, 255, 0.08) 0%, transparent 45%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation */
+    header {
+      background: rgba(14, 22, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--royal-blue), var(--cyan));
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.15rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 0 16px var(--cyan-glow);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-title span {
+      color: var(--cyan);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: #10B981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10B981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-profile-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+    }
+
+    .user-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-blue), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .user-info-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .user-name-display {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.82rem;
+    }
+
+    .role-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.4px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .role-senior-supervisor {
+      background: rgba(139, 92, 246, 0.2);
+      color: #A78BFA;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+
+    .role-tier2-supervisor {
+      background: rgba(0, 210, 255, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 210, 255, 0.35);
+    }
+
+    .role-frontline-agent {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .role-unauthenticated {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-auth {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(37, 99, 235, 0.4);
+      color: var(--cyan);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-auth:hover {
+      background: rgba(37, 99, 235, 0.35);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #F87171;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.28);
+      border-color: #EF4444;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(37, 99, 235, 0.4);
+      color: var(--cyan);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(37, 99, 235, 0.35);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    /* Metrics Ribbon */
+    .metrics-ribbon {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 1.25rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(14, 22, 38, 0.4);
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-highlight);
+    }
+
+    .metric-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+    }
+
+    .metric-val {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .metric-val.highlight-cyan { color: var(--cyan); }
+    .metric-val.highlight-amber { color: var(--warning); }
+    .metric-val.highlight-green { color: var(--success); }
+    .metric-val.highlight-red { color: var(--danger); }
+
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    /* Main Container Layout */
+    main {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem 1.75rem;
+      flex: 1;
+      height: calc(100vh - 170px);
+      overflow: hidden;
+    }
+
+    /* Left Pane: Queues */
+    .queue-pane {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: rgba(19, 30, 53, 0.6);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+      background: rgba(0, 210, 255, 0.05);
+    }
+
+    .count-badge {
+      background: var(--royal-blue);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+
+    .count-badge.badge-amber {
+      background: rgba(245, 158, 11, 0.25);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .count-badge.badge-cyan {
+      background: rgba(0, 210, 255, 0.25);
+      color: #38BDF8;
+      border: 1px solid rgba(0, 210, 255, 0.4);
+    }
+
+    .queue-list-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .queue-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .queue-item:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-highlight);
+      transform: translateX(3px);
+    }
+
+    .queue-item.active {
+      background: var(--bg-card-active);
+      border-color: var(--cyan);
+      box-shadow: inset 3px 0 0 var(--cyan), 0 4px 16px rgba(0, 210, 255, 0.15);
+    }
+
+    .item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .case-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    .tags-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .status-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.4px;
+    }
+
+    .tag-pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .tag-clarification {
+      background: rgba(0, 210, 255, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 210, 255, 0.35);
+    }
+
+    /* SLA Indicators */
+    .sla-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .sla-normal {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .sla-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .sla-overdue {
+      background: rgba(239, 68, 68, 0.2);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      animation: pulse 2s infinite;
+    }
+
+    .item-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .item-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .amount-inr {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #38BDF8;
+    }
+
+    .empty-queue {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-subtle);
+      gap: 0.75rem;
+    }
+
+    /* Right Pane: Inspector */
+    .inspector-pane {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .inspector-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .inspector-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      color: var(--text-subtle);
+      gap: 1rem;
+    }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .fact-box {
+      background: rgba(10, 15, 26, 0.4);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .fact-label {
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .fact-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+    }
+
+    .complaint-quote {
+      background: rgba(14, 22, 38, 0.6);
+      border-left: 3px solid var(--cyan);
+      padding: 0.85rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #E2E8F0;
+      font-style: italic;
+    }
+
+    .sla-alert-banner {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #F87171;
+      font-size: 0.85rem;
+    }
+
+    .recommendation-box {
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+    }
+
+    .rec-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #60A5FA;
+      margin-bottom: 0.4rem;
+    }
+
+    .rec-reasoning {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .rec-action {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.6rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #38BDF8;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .financial-disclaimer {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    /* Policy Citations */
+    .policy-item {
+      background: rgba(10, 15, 26, 0.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .policy-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .policy-doc {
+      font-weight: 600;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+    }
+
+    .policy-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      white-space: pre-wrap;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    /* Clarification Queue Details */
+    .missing-fields-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .missing-field-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .missing-field-name {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #FBBF24;
+    }
+
+    .missing-field-reason {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .clarification-form-card {
+      background: rgba(19, 30, 53, 0.7);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .form-input, .form-textarea, .form-select {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      padding: 0.55rem 0.75rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Inspector Footer / Action Bar */
+    .inspector-footer {
+      padding: 1.25rem 1.75rem;
+      border-top: 1px solid var(--border);
+      background: rgba(14, 22, 38, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .role-restriction-notice {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #FBBF24;
+      font-size: 0.8rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-md);
+      max-width: 500px;
+    }
+
+    .action-note {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      max-width: 440px;
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.35rem;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-approve {
+      background: linear-gradient(135deg, #059669, #10B981);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      background: linear-gradient(135deg, #047857, #059669);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-reject {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-reject:hover:not(:disabled) {
+      background: linear-gradient(135deg, #B91C1C, #DC2626);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit-clarification {
+      background: linear-gradient(135deg, #2563EB, #00D2FF);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0, 210, 255, 0.25);
+    }
+
+    .btn-submit-clarification:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 13, 26, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-lg);
+      width: 520px;
+      max-width: 90vw;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      animation: modalFade 0.2s ease-out;
+    }
+
+    @keyframes modalFade {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-textarea {
+      width: 100%;
+      height: 110px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      padding: 0.75rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    .modal-textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .modal-checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      color: #F87171;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background: rgba(19, 30, 53, 0.4);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text-main);
+      border-color: var(--text-subtle);
+    }
+
+    .login-error-banner {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #F87171;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      display: none;
+    }
+
+    .auth-demo-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    .auth-preset-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.72rem;
+      cursor: pointer;
+      font-family: var(--font-mono);
+    }
+
+    .chip-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Notification Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 200;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      animation: toastIn 0.3s ease;
+      max-width: 440px;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .toast.success { border-color: var(--success); }
+    .toast.danger { border-color: var(--danger); }
+    .toast.warning { border-color: var(--warning); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-section">
+      <a href="/dashboard" class="brand-logo" id="brandLogo">
+        <div class="logo-badge">R-AI</div>
+        <h1 class="brand-title">Resolve<span>AI</span> Supervisor Command &amp; Clarification Center</h1>
+      </a>
+      <div class="status-pill">
+        <div class="pulse-dot"></div>
+        LangGraph Orchestrator Live
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <!-- Active User Profile Display -->
+      <div class="user-profile-chip" id="userProfileChip">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info-text">
+          <span class="user-name-display" id="userNameDisplay">Not Authenticated</span>
+          <span class="role-badge role-unauthenticated" id="userRoleBadge">Unauthenticated</span>
+        </div>
+      </div>
+
+      <!-- Auth Action Button (Sign In / Logout) -->
+      <button id="authActionBtn" class="btn-auth" onclick="handleAuthButtonClick()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        <span id="authBtnLabel">Sign In</span>
+      </button>
+
+      <!-- Refresh Button -->
+      <button id="refreshBtn" class="refresh-btn" onclick="refreshCurrentQueue()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- Metrics Ribbon -->
+  <div class="metrics-ribbon">
+    <div class="metric-card">
+      <div class="metric-title">Pending Supervisor Reviews</div>
+      <div class="metric-val highlight-amber" id="metricPendingApprovals">0</div>
+      <div class="metric-sub">Paused at supervisor checkpoints</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Awaiting Customer Clarification</div>
+      <div class="metric-val highlight-cyan" id="metricPendingClarifications">0</div>
+      <div class="metric-sub">Paused for missing order/details</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">SLA Overdue / Breached</div>
+      <div class="metric-val highlight-red" id="metricSlaOverdue">0</div>
+      <div class="metric-sub">Requires senior supervisor override</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Staff Authorization Authority</div>
+      <div class="metric-val highlight-cyan" id="metricRoleAuthority" style="font-size: 1.15rem;">Checking...</div>
+      <div class="metric-sub" id="metricRoleSub">Enforcing RBAC thresholds</div>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <main>
+    <!-- Left Pane: Queues with Dual Tabs -->
+    <div class="queue-pane">
+      <div class="tab-nav">
+        <button id="tabApprovalsBtn" class="tab-btn active" onclick="switchQueueTab('approvals')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Supervisor Approvals
+          <span class="count-badge badge-amber" id="badgeApprovals">0</span>
+        </button>
+        <button id="tabClarificationsBtn" class="tab-btn" onclick="switchQueueTab('clarifications')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Customer Clarifications
+          <span class="count-badge badge-cyan" id="badgeClarifications">0</span>
+        </button>
+      </div>
+
+      <!-- Approvals Queue List -->
+      <div class="queue-list-container" id="queueListApprovals">
+        <div class="empty-queue">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <div>Scanning for pending approval checkpoints...</div>
+        </div>
+      </div>
+
+      <!-- Clarifications Queue List -->
+      <div class="queue-list-container" id="queueListClarifications" style="display: none;">
+        <div class="empty-queue">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <div>Scanning for workflows awaiting customer information...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Pane: Case Inspector -->
+    <div class="inspector-pane">
+      <div class="inspector-content" id="inspectorContent">
+        <div class="inspector-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-main);">No Case Selected</div>
+          <div>Select an item from the queue to inspect operational facts, policy citations, or submit clarification.</div>
+        </div>
+      </div>
+
+      <!-- Action Bar for Approvals -->
+      <div class="inspector-footer" id="inspectorFooterApprovals" style="display: none;">
+        <div id="approvalActionNotice" class="action-note">
+          Approving resumes the workflow from its SQLite checkpoint. Rejecting terminates the proposed remedy without execution.
+        </div>
+        <div class="action-buttons" id="approvalButtonsContainer">
+          <button id="btnReject" class="btn-action btn-reject" onclick="openRejectModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Reject Resolution
+          </button>
+          <button id="btnApprove" class="btn-action btn-approve" onclick="openApproveModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Approve Resolution
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Login Modal -->
+  <div class="modal-backdrop" id="loginModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">ResolveAI Staff Authentication</div>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Please authenticate with your internal supervisor or agent credentials to access approval queues and clarification intakes.
+        </div>
+        <div class="login-error-banner" id="loginErrorMsg">Invalid username or password.</div>
+        <div class="form-group">
+          <label class="form-label" for="loginUsername">Username:</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="e.g. supervisor_lead, supervisor_alice, agent_bob" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" autocomplete="current-password">
+        </div>
+        <div class="auth-demo-options">
+          <div>Preset Staff Roles (Click to fill username):</div>
+          <div class="auth-preset-chips">
+            <button type="button" class="chip-btn" onclick="selectPresetUser('supervisor_lead')">supervisor_lead (Senior)</button>
+            <button type="button" class="chip-btn" onclick="selectPresetUser('supervisor_alice')">supervisor_alice (Tier 2)</button>
+            <button type="button" class="chip-btn" onclick="selectPresetUser('agent_bob')">agent_bob (Frontline)</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('loginModal')">Close</button>
+        <button type="button" class="btn-action btn-submit-clarification" id="btnLoginSubmit" onclick="submitLogin()">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rejection Modal -->
+  <div class="modal-backdrop" id="rejectModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Reject Proposed Resolution</div>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Please provide the mandatory rejection justification. The workflow will record this decision in the immutable audit trail and halt the proposed action.
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="rejectionReasonInput">Rejection Reason (Mandatory):</label>
+          <textarea id="rejectionReasonInput" class="modal-textarea" placeholder="e.g. Ineligible claim: customer has not provided mandatory unboxing evidence per Platform Policy Section 3."></textarea>
+        </div>
+        <div id="rejectOverrideContainer" class="modal-checkbox-row" style="display: none;">
+          <input type="checkbox" id="rejectOverrideExpiredCheckbox" style="margin-top: 3px;">
+          <label for="rejectOverrideExpiredCheckbox" style="cursor: pointer;">
+            <strong>Senior Supervisor SLA Override:</strong> Case SLA deadline has passed. Check to apply authorized override confirmation.
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('rejectModal')">Cancel</button>
+        <button type="button" class="btn-action btn-reject" onclick="submitRejection()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approval Confirmation Modal -->
+  <div class="modal-backdrop" id="approveModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Authorize &amp; Resume Workflow</div>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          You are authorizing this resolution. LangGraph will resume the paused workflow from its SQLite checkpoint, complete remaining verification steps, and record the support ticket.
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="approvalNotesInput">Operational Supervisor Notes (Optional):</label>
+          <textarea id="approvalNotesInput" class="modal-textarea" placeholder="e.g. Verified customer damage photos and order amount; approved under Tier 2 guidelines."></textarea>
+        </div>
+        <div id="approveOverrideContainer" class="modal-checkbox-row" style="display: none;">
+          <input type="checkbox" id="approveOverrideExpiredCheckbox" style="margin-top: 3px;">
+          <label for="approveOverrideExpiredCheckbox" style="cursor: pointer;">
+            <strong>Senior Supervisor SLA Override:</strong> Case SLA deadline has passed. Check to apply authorized override confirmation.
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('approveModal')">Cancel</button>
+        <button type="button" class="btn-action btn-approve" onclick="submitApproval()">Authorize &amp; Resume</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ---------------------------------------------------------------------------
+    // Application State Management
+    // ---------------------------------------------------------------------------
+    let currentUser = null; // { id, username, full_name, role }
+    let currentTab = 'approvals'; // 'approvals' | 'clarifications'
+    let activeThreadId = null;
+    let pendingApprovals = [];
+    let pendingClarifications = [];
+    let selectedCaseData = null;
+
+    // ---------------------------------------------------------------------------
+    // Authentication & Token Handling
+    // Stored in sessionStorage to prevent persistent credential leakage across browser restarts.
+    // ---------------------------------------------------------------------------
+    function getStoredToken() {
+      return sessionStorage.getItem("resolveai_token") || null;
+    }
+
+    function setStoredToken(token, user) {
+      if (token) {
+        sessionStorage.setItem("resolveai_token", token);
+        sessionStorage.setItem("resolveai_user", JSON.stringify(user));
+      } else {
+        sessionStorage.removeItem("resolveai_token");
+        sessionStorage.removeItem("resolveai_user");
+      }
+    }
+
+    function getAuthHeaders() {
+      const token = getStoredToken();
+      const headers = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      return headers;
+    }
+
+    async function checkCurrentUserSession() {
+      const token = getStoredToken();
+      if (!token) {
+        setUnauthenticatedUI();
+        return;
+      }
+
+      try {
+        const resp = await fetch("/api/v1/auth/me", {
+          headers: getAuthHeaders()
+        });
+
+        if (resp.ok) {
+          const user = await resp.json();
+          currentUser = user;
+          setAuthenticatedUI(user);
+        } else if (resp.status === 401) {
+          // Token expired or invalid
+          setStoredToken(null, null);
+          setUnauthenticatedUI();
+          showToast("Session expired. Please sign in again.", "warning");
+        } else {
+          setUnauthenticatedUI();
+        }
+      } catch (err) {
+        console.warn("Session check network error:", err);
+        setUnauthenticatedUI();
+      }
+    }
+
+    function setAuthenticatedUI(user) {
+      document.getElementById("userAvatar").innerText = (user.username || "U")[0].toUpperCase();
+      document.getElementById("userNameDisplay").innerText = user.full_name || user.username;
+      
+      const roleBadge = document.getElementById("userRoleBadge");
+      roleBadge.innerText = formatRoleName(user.role);
+      roleBadge.className = `role-badge ${getRoleBadgeClass(user.role)}`;
+
+      document.getElementById("authBtnLabel").innerText = "Sign Out";
+      document.getElementById("authActionBtn").className = "btn-auth btn-logout";
+
+      // Update Metric card for role authority
+      const roleMetric = document.getElementById("metricRoleAuthority");
+      const roleSub = document.getElementById("metricRoleSub");
+      if (user.role === "senior_supervisor") {
+        roleMetric.innerText = "Senior Supervisor";
+        roleSub.innerText = "Full authorization (> ₹5k + SLA override)";
+      } else if (user.role === "tier2_supervisor") {
+        roleMetric.innerText = "Tier 2 Supervisor";
+        roleSub.innerText = "Authorized for claims ≤ ₹5,000";
+      } else if (user.role === "frontline_agent") {
+        roleMetric.innerText = "Frontline Agent";
+        roleSub.innerText = "Read-only queue + clarification intake";
+      } else {
+        roleMetric.innerText = user.role || "Staff";
+        roleSub.innerText = "Standard staff access";
+      }
+    }
+
+    function setUnauthenticatedUI() {
+      currentUser = null;
+      document.getElementById("userAvatar").innerText = "?";
+      document.getElementById("userNameDisplay").innerText = "Not Authenticated";
+      
+      const roleBadge = document.getElementById("userRoleBadge");
+      roleBadge.innerText = "Unauthenticated";
+      roleBadge.className = "role-badge role-unauthenticated";
+
+      document.getElementById("authBtnLabel").innerText = "Sign In";
+      document.getElementById("authActionBtn").className = "btn-auth";
+
+      document.getElementById("metricRoleAuthority").innerText = "Sign In Required";
+      document.getElementById("metricRoleSub").innerText = "Authenticate to submit actions";
+    }
+
+    function formatRoleName(role) {
+      if (role === "senior_supervisor") return "Senior Supervisor";
+      if (role === "tier2_supervisor") return "Tier 2 Supervisor";
+      if (role === "frontline_agent") return "Frontline Agent";
+      return role || "Staff";
+    }
+
+    function getRoleBadgeClass(role) {
+      if (role === "senior_supervisor") return "role-senior-supervisor";
+      if (role === "tier2_supervisor") return "role-tier2-supervisor";
+      if (role === "frontline_agent") return "role-frontline-agent";
+      return "role-unauthenticated";
+    }
+
+    function handleAuthButtonClick() {
+      if (currentUser) {
+        // Logout
+        setStoredToken(null, null);
+        setUnauthenticatedUI();
+        showToast("Logged out successfully.", "success");
+        if (activeThreadId) {
+          selectCase(activeThreadId);
+        }
+      } else {
+        openLoginModal();
+      }
+    }
+
+    function openLoginModal() {
+      document.getElementById("loginErrorMsg").style.display = "none";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("loginModal").style.display = "flex";
+      document.getElementById("loginUsername").focus();
+    }
+
+    function selectPresetUser(username) {
+      document.getElementById("loginUsername").value = username;
+      document.getElementById("loginPassword").focus();
+    }
+
+    async function submitLogin() {
+      const username = (document.getElementById("loginUsername").value || "").trim();
+      const password = (document.getElementById("loginPassword").value || "").trim();
+      const errorMsg = document.getElementById("loginErrorMsg");
+
+      if (!username || !password) {
+        errorMsg.innerText = "Please provide both username and password.";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      try {
+        const resp = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => ({}));
+          errorMsg.innerText = errData.detail || "Authentication failed. Check credentials.";
+          errorMsg.style.display = "block";
+          return;
+        }
+
+        const data = await resp.json();
+        setStoredToken(data.access_token, data.user);
+        currentUser = data.user;
+        setAuthenticatedUI(data.user);
+        closeModal("loginModal");
+        showToast(`Welcome back, ${data.user.full_name || data.user.username}!`, "success");
+
+        refreshCurrentQueue();
+        if (activeThreadId) {
+          selectCase(activeThreadId);
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        errorMsg.innerText = "Network error connecting to login service.";
+        errorMsg.style.display = "block";
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Queue Switching & Data Fetching
+    // ---------------------------------------------------------------------------
+    function switchQueueTab(tabName) {
+      currentTab = tabName;
+      document.getElementById("tabApprovalsBtn").classList.toggle("active", tabName === "approvals");
+      document.getElementById("tabClarificationsBtn").classList.toggle("active", tabName === "clarifications");
+      
+      document.getElementById("queueListApprovals").style.display = tabName === "approvals" ? "flex" : "none";
+      document.getElementById("queueListClarifications").style.display = tabName === "clarifications" ? "flex" : "none";
+
+      refreshCurrentQueue();
+    }
+
+    function refreshCurrentQueue() {
+      fetchApprovalsQueue();
+      fetchClarificationsQueue();
+    }
+
+    async function fetchApprovalsQueue() {
+      try {
+        const resp = await fetch("/api/v1/workflows/pending-approvals?limit=50&offset=0", {
+          headers: getAuthHeaders()
+        });
+        if (!resp.ok) throw new Error("Failed to load approvals queue");
+        const data = await resp.json();
+        pendingApprovals = data.items || [];
+
+        document.getElementById("metricPendingApprovals").innerText = data.total_count || 0;
+        document.getElementById("badgeApprovals").innerText = data.total_count || 0;
+
+        // Calculate overdue count
+        const overdueCount = pendingApprovals.filter(i => i.is_expired).length;
+        document.getElementById("metricSlaOverdue").innerText = overdueCount;
+
+        renderApprovalsQueue();
+      } catch (err) {
+        console.error("Approvals queue fetch error:", err);
+      }
+    }
+
+    async function fetchClarificationsQueue() {
+      try {
+        const resp = await fetch("/api/v1/workflows/pending-clarifications?limit=50&offset=0", {
+          headers: getAuthHeaders()
+        });
+        if (!resp.ok) throw new Error("Failed to load clarifications queue");
+        const data = await resp.json();
+        pendingClarifications = data.items || [];
+
+        document.getElementById("metricPendingClarifications").innerText = data.total_count || 0;
+        document.getElementById("badgeClarifications").innerText = data.total_count || 0;
+
+        renderClarificationsQueue();
+      } catch (err) {
+        console.error("Clarifications queue fetch error:", err);
+      }
+    }
+
+    function renderApprovalsQueue() {
+      const listEl = document.getElementById("queueListApprovals");
+      if (pendingApprovals.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-queue">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <div style="color: #10B981; font-weight: 600;">Approvals Queue Clear</div>
+            <div>All escalated cases have been decided. No workflows currently paused for approval.</div>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = pendingApprovals.map(item => {
+        const slaInfo = calculateSlaDisplay(item.expires_at, item.is_expired);
+        return `
+          <div class="queue-item ${item.thread_id === activeThreadId ? 'active' : ''}" onclick="selectCase('${item.thread_id}', 'approval')">
+            <div class="item-top">
+              <span class="case-num">${escapeHtml(item.case_number || 'CASE-' + item.case_id)}</span>
+              <div class="tags-row">
+                <span class="status-tag tag-pending">${escapeHtml(item.status)}</span>
+                <span class="sla-tag ${slaInfo.cssClass}">${escapeHtml(slaInfo.label)}</span>
+              </div>
+            </div>
+            <div class="item-title">${escapeHtml(item.justification || 'Supervisor approval requested')}</div>
+            <div class="item-meta">
+              <span>Order: <strong>${escapeHtml(item.order_number || 'N/A')}</strong></span>
+              <span>Required: <strong>${formatRoleName(item.required_role)}</strong></span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderClarificationsQueue() {
+      const listEl = document.getElementById("queueListClarifications");
+      if (pendingClarifications.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-queue">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <div style="color: #10B981; font-weight: 600;">Clarifications Queue Clear</div>
+            <div>No cases currently awaiting customer clarification.</div>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = pendingClarifications.map(item => `
+        <div class="queue-item ${item.thread_id === activeThreadId ? 'active' : ''}" onclick="selectCase('${item.thread_id}', 'clarification')">
+          <div class="item-top">
+            <span class="case-num">${escapeHtml(item.case_number || 'CASE-' + (item.case_id || 'N/A'))}</span>
+            <span class="status-tag tag-clarification">Needs Information</span>
+          </div>
+          <div class="item-title">${escapeHtml(item.complaint_text || 'Awaiting customer clarification')}</div>
+          <div class="item-meta">
+            <span>Customer: <strong>${escapeHtml(item.customer_name || 'Customer')}</strong></span>
+            <span>Missing: <strong>${(item.missing_information || []).length} field(s)</strong></span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function calculateSlaDisplay(expiresAtIso, isExpired) {
+      if (isExpired) {
+        return { label: "SLA Overdue", cssClass: "sla-overdue" };
+      }
+      if (!expiresAtIso) {
+        return { label: "Standard SLA", cssClass: "sla-normal" };
+      }
+
+      const now = new Date();
+      const deadline = new Date(expiresAtIso);
+      const diffMs = deadline - now;
+
+      if (diffMs <= 0) {
+        return { label: "SLA Overdue", cssClass: "sla-overdue" };
+      }
+
+      const hoursRemaining = Math.floor(diffMs / (1000 * 60 * 60));
+      const minsRemaining = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (hoursRemaining < 4) {
+        return { label: `${hoursRemaining}h ${minsRemaining}m left`, cssClass: "sla-warning" };
+      }
+      return { label: `${hoursRemaining}h ${minsRemaining}m left`, cssClass: "sla-normal" };
+    }
+
+    // ---------------------------------------------------------------------------
+    // Case Inspector Rendering
+    // ---------------------------------------------------------------------------
+    async function selectCase(threadId, type = null) {
+      activeThreadId = threadId;
+      const detectedType = type || currentTab.slice(0, -1); // 'approval' or 'clarification'
+
+      // Re-render queue active highlights
+      if (currentTab === 'approvals') renderApprovalsQueue();
+      else renderClarificationsQueue();
+
+      const contentEl = document.getElementById("inspectorContent");
+      const footerEl = document.getElementById("inspectorFooterApprovals");
+      contentEl.innerHTML = `<div class="inspector-placeholder">Loading case facts & policy evidence...</div>`;
+      footerEl.style.display = "none";
+
+      if (detectedType === "clarification" || currentTab === "clarifications") {
+        await loadClarificationCase(threadId);
+      } else {
+        await loadApprovalCase(threadId);
+      }
+    }
+
+    async function loadApprovalCase(threadId) {
+      const contentEl = document.getElementById("inspectorContent");
+      const footerEl = document.getElementById("inspectorFooterApprovals");
+
+      try {
+        const resp = await fetch(`/api/v1/workflows/${threadId}/approval`, {
+          headers: getAuthHeaders()
+        });
+        if (!resp.ok) throw new Error("Failed to load approval case details");
+        const details = await resp.json();
+        selectedCaseData = details;
+
+        renderApprovalCaseDetails(details);
+        setupApprovalActions(details);
+        footerEl.style.display = "flex";
+      } catch (err) {
+        console.error("Failed to load case:", err);
+        contentEl.innerHTML = `<div class="inspector-placeholder" style="color: var(--danger);">Failed to load case details: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    async function loadClarificationCase(threadId) {
+      const contentEl = document.getElementById("inspectorContent");
+      const footerEl = document.getElementById("inspectorFooterApprovals");
+      footerEl.style.display = "none"; // Hide approval buttons for clarification view
+
+      try {
+        const resp = await fetch(`/api/v1/workflows/${threadId}/clarification`, {
+          headers: getAuthHeaders()
+        });
+        if (!resp.ok) throw new Error("Failed to load clarification details");
+        const details = await resp.json();
+        selectedCaseData = details;
+
+        renderClarificationCaseDetails(details);
+      } catch (err) {
+        console.error("Failed to load clarification case:", err);
+        contentEl.innerHTML = `<div class="inspector-placeholder" style="color: var(--danger);">Failed to load clarification details: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function renderApprovalCaseDetails(d) {
+      const contentEl = document.getElementById("inspectorContent");
+      let resolution = {};
+      try {
+        resolution = d.proposed_resolution ? JSON.parse(d.proposed_resolution) : {};
+      } catch (e) {
+        resolution = {};
+      }
+
+      let policyEvidence = [];
+      try {
+        policyEvidence = d.policy_evidence ? JSON.parse(d.policy_evidence) : [];
+      } catch (e) {
+        policyEvidence = [];
+      }
+
+      const slaInfo = calculateSlaDisplay(d.expires_at, d.is_expired);
+      const isOverdue = d.is_expired;
+
+      contentEl.innerHTML = `
+        <!-- Case Identification -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+              Case Identification &amp; LangGraph Checkpoint
+            </div>
+            <div class="tags-row">
+              <span class="status-tag tag-pending">${escapeHtml(d.status)}</span>
+              <span class="sla-tag ${slaInfo.cssClass}">${escapeHtml(slaInfo.label)}</span>
+            </div>
+          </div>
+          <div class="facts-grid">
+            <div class="fact-box">
+              <div class="fact-label">Case Identifier</div>
+              <div class="fact-value">${escapeHtml(d.case_number || 'CASE-' + d.case_id)}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">LangGraph Thread ID</div>
+              <div class="fact-value" style="font-size: 0.75rem;">${escapeHtml(d.thread_id)}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">SLA Deadline</div>
+              <div class="fact-value" style="font-size: 0.75rem;">${escapeHtml(d.expires_at ? new Date(d.expires_at).toLocaleString() : 'N/A')}</div>
+            </div>
+          </div>
+        </div>
+
+        ${isOverdue ? `
+          <div class="sla-alert-banner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+              <strong>SLA Deadline Breached:</strong> This request exceeded its approval SLA.
+              Under platform policy, decisions on expired approvals require explicit Senior Supervisor override authorization.
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Customer Complaint -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Customer Submitted Complaint</div>
+          </div>
+          <div class="complaint-quote">
+            "${escapeHtml((d.case && d.case.complaint_text) || d.justification || 'No complaint text provided.')}"
+          </div>
+        </div>
+
+        <!-- Stored Order Facts -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Order Investigation Facts (Database)</div>
+          </div>
+          <div class="facts-grid">
+            <div class="fact-box">
+              <div class="fact-label">Order Number</div>
+              <div class="fact-value">${escapeHtml((d.order && d.order.order_number) || 'N/A')}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">Product Name</div>
+              <div class="fact-value">${escapeHtml((d.order && d.order.product_name) || 'N/A')}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">Order Total (INR)</div>
+              <div class="fact-value amount-inr">${formatINR(d.order && d.order.total_amount)}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">Delivery Status</div>
+              <div class="fact-value">${escapeHtml((d.order && d.order.delivery_status) || 'N/A')}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">Customer Name</div>
+              <div class="fact-value">${escapeHtml((d.customer && d.customer.name) || 'Registered User')}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">Customer Email</div>
+              <div class="fact-value" style="font-size: 0.75rem;">${escapeHtml((d.customer && d.customer.email) || 'N/A')}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proposed AI Resolution -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Proposed AI Resolution Recommendation</div>
+          </div>
+          <div class="recommendation-box">
+            <div class="rec-title">${escapeHtml(resolution.title || 'Escalate to Supervisor')}</div>
+            <div class="rec-reasoning">${escapeHtml(resolution.reasoning || d.justification || 'High-value threshold requires manual supervisor evaluation.')}</div>
+            <div class="rec-action">
+              <span>Required Action:</span>
+              <strong>${escapeHtml(resolution.action_required || 'Supervisor review and explicit decision required.')}</strong>
+            </div>
+            <div class="financial-disclaimer">
+              Notice: Authorizing this resolution registers an approved remedy and internal support ticket. No automatic payment or bank transfer is executed.
+            </div>
+          </div>
+        </div>
+
+        <!-- Retrieved Policy Citations -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Authoritative Policy Citations (${policyEvidence.length})</div>
+          </div>
+          <div>
+            ${policyEvidence.length > 0 ? policyEvidence.slice(0, 4).map(p => `
+              <div class="policy-item">
+                <div class="policy-head">
+                  <span class="policy-doc">${escapeHtml(p.document_name || 'Policy Document')} [${escapeHtml(p.policy_id || 'ID')}]</span>
+                  <span style="color: var(--text-subtle);">${escapeHtml(p.scope || 'platform')}</span>
+                </div>
+                <div class="policy-text">${escapeHtml(p.passage || '')}</div>
+              </div>
+            `).join('') : '<div style="color: var(--text-subtle); font-size: 0.85rem;">No policy passages attached.</div>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderClarificationCaseDetails(d) {
+      const contentEl = document.getElementById("inspectorContent");
+      const missing = d.missing_information || [];
+      const detailsMap = d.clarification_details || {};
+
+      contentEl.innerHTML = `
+        <!-- Case Identification -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Workflow Awaiting Customer Clarification
+            </div>
+            <span class="status-tag tag-clarification">Needs Information</span>
+          </div>
+          <div class="facts-grid">
+            <div class="fact-box">
+              <div class="fact-label">Case Identifier</div>
+              <div class="fact-value">${escapeHtml(d.case_number || 'N/A')}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">LangGraph Thread ID</div>
+              <div class="fact-value" style="font-size: 0.75rem;">${escapeHtml(d.thread_id)}</div>
+            </div>
+            <div class="fact-box">
+              <div class="fact-label">Customer Account</div>
+              <div class="fact-value" style="font-size: 0.8rem;">${escapeHtml(d.customer_name || 'Customer ID: ' + (d.customer_id || 'N/A'))}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Originating Complaint -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Customer Submitted Complaint</div>
+          </div>
+          <div class="complaint-quote">
+            "${escapeHtml(d.complaint_text || 'No complaint text provided.')}"
+          </div>
+        </div>
+
+        <!-- Missing Information & Backend Rationale -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Required Missing Information (${missing.length})</div>
+          </div>
+          <div class="missing-fields-box">
+            ${missing.map(f => `
+              <div class="missing-field-row">
+                <span class="missing-field-name">• ${escapeHtml(f)}</span>
+                <span class="missing-field-reason">${escapeHtml(detailsMap[f] || 'This detail is required to evaluate order facts against platform policies.')}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Staff Clarification Intake Form -->
+        <div class="clarification-form-card">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Authorized Staff Clarification Intake
+            </div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Authorized staff may submit customer-provided details received via support contact.
+            Upon submission, LangGraph rehydrates from checkpoint and re-evaluates order facts and policy evidence.
+          </div>
+          <form id="clarificationForm" onsubmit="event.preventDefault(); submitStaffClarification('${d.thread_id}');">
+            <div class="form-group">
+              <label class="form-label" for="clarifyOrderNumber">Order Number (e.g. ORD-2026-001):</label>
+              <input type="text" id="clarifyOrderNumber" class="form-input" placeholder="e.g. ORD-2026-001" value="${escapeHtml(d.order_number || '')}">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="clarifyDetails">Additional Clarification / Defect Notes:</label>
+              <textarea id="clarifyDetails" class="form-textarea" placeholder="Describe customer-provided clarification, unboxing details, or damage evidence."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="clarifyCategory">Product Category (Optional):</label>
+              <select id="clarifyCategory" class="form-select">
+                <option value="">-- Retain / Auto-detect Category --</option>
+                <option value="electronics">Electronics</option>
+                <option value="fashion">Fashion</option>
+                <option value="home_appliances">Home Appliances</option>
+                <option value="general_merchandise">General Merchandise</option>
+              </select>
+            </div>
+            <button type="submit" id="btnSubmitClarification" class="btn-action btn-submit-clarification" style="width: 100%; justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Submit Information &amp; Resume Workflow
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Role-Based Button Gating & Restrictions
+    // ---------------------------------------------------------------------------
+    function setupApprovalActions(caseData) {
+      const btnApprove = document.getElementById("btnApprove");
+      const btnReject = document.getElementById("btnReject");
+      const noticeEl = document.getElementById("approvalActionNotice");
+      const buttonsContainer = document.getElementById("approvalButtonsContainer");
+
+      // Reset states
+      btnApprove.disabled = false;
+      btnReject.disabled = false;
+      btnApprove.style.display = "inline-flex";
+      btnReject.style.display = "inline-flex";
+      noticeEl.className = "action-note";
+
+      const userRole = currentUser ? currentUser.role : null;
+      const orderTotal = (caseData.order && caseData.order.total_amount) || 0;
+      const isHighValue = orderTotal > 500000; // > ₹5,000 in paise
+      const isExpired = caseData.is_expired;
+
+      // Unauthenticated state
+      if (!userRole) {
+        btnApprove.disabled = true;
+        btnReject.disabled = true;
+        noticeEl.innerText = "Authentication required: Sign in to perform approval or rejection actions.";
+        return;
+      }
+
+      // Frontline Agent restriction
+      if (userRole === "frontline_agent") {
+        btnApprove.style.display = "none";
+        btnReject.style.display = "none";
+        noticeEl.className = "role-restriction-notice";
+        noticeEl.innerHTML = "<strong>Frontline Agent Access:</strong> Approval actions are restricted to Tier 2 and Senior Supervisors. You may inspect case evidence or submit customer clarification.";
+        return;
+      }
+
+      // Tier 2 Supervisor restrictions
+      if (userRole === "tier2_supervisor") {
+        if (isHighValue) {
+          btnApprove.disabled = true;
+          noticeEl.className = "role-restriction-notice";
+          noticeEl.innerHTML = `<strong>High-Value Threshold Exceeded (${formatINR(orderTotal)}):</strong> Claims above ₹5,000 require Senior Supervisor authorization. Tier 2 approval is restricted.`;
+          return;
+        }
+
+        if (isExpired) {
+          btnApprove.disabled = true;
+          noticeEl.className = "role-restriction-notice";
+          noticeEl.innerHTML = `<strong>SLA Breached:</strong> Expired cases cannot be approved by Tier 2 Supervisors. Senior Supervisor override is required.`;
+          return;
+        }
+
+        noticeEl.innerText = `Tier 2 Supervisor authorization for standard claim (${formatINR(orderTotal)}).`;
+        return;
+      }
+
+      // Senior Supervisor
+      if (userRole === "senior_supervisor") {
+        if (isExpired) {
+          noticeEl.className = "role-restriction-notice";
+          noticeEl.innerHTML = `<strong>SLA Breached:</strong> Approving this case requires explicit Senior Supervisor override confirmation.`;
+        } else {
+          noticeEl.innerText = `Senior Supervisor authorization authority (full limit clearance).`;
+        }
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Decision Modals & Submissions
+    // ---------------------------------------------------------------------------
+    function openApproveModal() {
+      if (!currentUser) {
+        openLoginModal();
+        return;
+      }
+      document.getElementById("approvalNotesInput").value = "";
+      const overrideContainer = document.getElementById("approveOverrideContainer");
+      const overrideCheckbox = document.getElementById("approveOverrideExpiredCheckbox");
+      
+      if (selectedCaseData && selectedCaseData.is_expired) {
+        overrideContainer.style.display = "flex";
+        overrideCheckbox.checked = false;
+      } else {
+        overrideContainer.style.display = "none";
+        overrideCheckbox.checked = false;
+      }
+
+      document.getElementById("approveModal").style.display = "flex";
+    }
+
+    function openRejectModal() {
+      if (!currentUser) {
+        openLoginModal();
+        return;
+      }
+      document.getElementById("rejectionReasonInput").value = "";
+      const overrideContainer = document.getElementById("rejectOverrideContainer");
+      const overrideCheckbox = document.getElementById("rejectOverrideExpiredCheckbox");
+
+      if (selectedCaseData && selectedCaseData.is_expired) {
+        overrideContainer.style.display = "flex";
+        overrideCheckbox.checked = false;
+      } else {
+        overrideContainer.style.display = "none";
+        overrideCheckbox.checked = false;
+      }
+
+      document.getElementById("rejectModal").style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = "none";
+    }
+
+    async function submitApproval() {
+      if (!activeThreadId) return;
+      if (!currentUser) {
+        openLoginModal();
+        return;
+      }
+
+      const notes = (document.getElementById("approvalNotesInput").value || "").trim();
+      const overrideCheckbox = document.getElementById("approveOverrideExpiredCheckbox");
+      const isOverride = overrideCheckbox ? overrideCheckbox.checked : false;
+
+      if (selectedCaseData && selectedCaseData.is_expired && currentUser.role === "senior_supervisor" && !isOverride) {
+        alert("This case has expired. You must explicitly check the Senior Supervisor SLA Override checkbox to proceed.");
+        return;
+      }
+
+      closeModal("approveModal");
+      const btnApprove = document.getElementById("btnApprove");
+      const btnReject = document.getElementById("btnReject");
+      btnApprove.disabled = true;
+      btnReject.disabled = true;
+
+      try {
+        const payload = {
+          reviewer_id: currentUser.username,
+          reason: notes || "Approved via supervisor command center",
+          override_expired: isOverride
+        };
+
+        const resp = await fetch(`/api/v1/workflows/${activeThreadId}/approve`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => ({}));
+          throw new Error(errData.detail || `Approval failed with status ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        showToast(`Case approved by ${currentUser.username}! Workflow resumed and completed.`, "success");
+        await refreshCurrentQueue();
+        selectCase(activeThreadId, "approval");
+      } catch (err) {
+        console.error("Approval error:", err);
+        showToast(err.message, "danger");
+        btnApprove.disabled = false;
+        btnReject.disabled = false;
+      }
+    }
+
+    async function submitRejection() {
+      if (!activeThreadId) return;
+      if (!currentUser) {
+        openLoginModal();
+        return;
+      }
+
+      const reason = (document.getElementById("rejectionReasonInput").value || "").trim();
+      if (!reason) {
+        alert("A non-empty rejection reason is required.");
+        return;
+      }
+
+      const overrideCheckbox = document.getElementById("rejectOverrideExpiredCheckbox");
+      const isOverride = overrideCheckbox ? overrideCheckbox.checked : false;
+
+      closeModal("rejectModal");
+      const btnApprove = document.getElementById("btnApprove");
+      const btnReject = document.getElementById("btnReject");
+      btnApprove.disabled = true;
+      btnReject.disabled = true;
+
+      try {
+        const payload = {
+          reviewer_id: currentUser.username,
+          reason: reason,
+          override_expired: isOverride
+        };
+
+        const resp = await fetch(`/api/v1/workflows/${activeThreadId}/reject`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => ({}));
+          throw new Error(errData.detail || `Rejection failed with status ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        showToast(`Case rejected by ${currentUser.username}. Workflow terminated without remedy execution.`, "success");
+        await refreshCurrentQueue();
+        selectCase(activeThreadId, "approval");
+      } catch (err) {
+        console.error("Rejection error:", err);
+        showToast(err.message, "danger");
+        btnApprove.disabled = false;
+        btnReject.disabled = false;
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Staff Clarification Submission
+    // ---------------------------------------------------------------------------
+    async function submitStaffClarification(threadId) {
+      if (!currentUser) {
+        openLoginModal();
+        return;
+      }
+
+      const orderNumber = (document.getElementById("clarifyOrderNumber").value || "").trim();
+      const details = (document.getElementById("clarifyDetails").value || "").trim();
+      const category = (document.getElementById("clarifyCategory").value || "").trim();
+
+      // Form validation
+      if (!orderNumber && !details && !category) {
+        alert("Please provide at least an Order Number or Clarification Details to submit.");
+        return;
+      }
+
+      // Path traversal security check
+      if (orderNumber && (orderNumber.includes("..") || orderNumber.includes("/") || orderNumber.includes("\\"))) {
+        alert("Invalid Order Number format: Directory traversal or path characters are prohibited.");
+        return;
+      }
+      if (details && (details.includes("../") || details.includes("..\\") || details.startsWith("/") || details.startsWith("\\"))) {
+        alert("Invalid details format: Directory traversal or path characters are prohibited.");
+        return;
+      }
+
+      const btnSubmit = document.getElementById("btnSubmitClarification");
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = "Submitting clarification & resuming workflow...";
+
+      try {
+        const payload = {
+          order_number: orderNumber || null,
+          additional_details: details || null,
+          category: category || null
+        };
+
+        const resp = await fetch(`/api/v1/workflows/${threadId}/provide-information`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => ({}));
+          throw new Error(errData.detail || `Clarification submission failed with status ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        showToast(`Clarification processed: ${data.message}`, "success");
+
+        // Refresh queues and select case
+        await refreshCurrentQueue();
+        if (data.status === "needs_review") {
+          // Escalated to supervisor review: switch to approvals tab
+          switchQueueTab("approvals");
+          selectCase(threadId, "approval");
+        } else {
+          selectCase(threadId, "clarification");
+        }
+      } catch (err) {
+        console.error("Clarification error:", err);
+        showToast(err.message, "danger");
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Submit Information & Resume Workflow";
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Utilities
+    // ---------------------------------------------------------------------------
+    function formatINR(paise) {
+      if (paise === null || paise === undefined) return "N/A";
+      const rupees = (paise / 100).toFixed(2);
+      return "₹" + Number(rupees).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      const div = document.createElement("div");
+      div.textContent = String(text);
+      return div.innerHTML;
+    }
+
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✓' : (type === 'warning' ? '⚠' : '✕')}</span> <div>${escapeHtml(message)}</div>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Initialization & Polling
+    // ---------------------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", async () => {
+      await checkCurrentUserSession();
+      refreshCurrentQueue();
+      // Auto-poll every 20 seconds
+      setInterval(refreshCurrentQueue, 20000);
+    });
+  </script>
+</body>
+</html>
